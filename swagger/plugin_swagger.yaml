@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: Altron plugins
+  description: Сервис плагинов для альтрона
+  version: 0.0.1
+servers:
+  - description: Local server
+    url: http://localhost:12002/
+
+paths:
+  /plugins:
+    get:
+      tags:
+        - Plugin
+      description: Получить список имен всех плагинов
+      summary: Получить список имен всех плагинов
+      responses:
+        200:
+          $ref: "#/components/responses/GetAllPluginsResponse"
+        400:
+          description: что-то пошло не так
+
+  /plugins/process:
+    post:
+      tags:
+        - Plugin
+      description: Обработка пакета плагином
+      summary: Обработка пакета плагином
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/ProcessSessionRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/ProcessSessionResponse"
+        400:
+          description: что-то пошло не так
+
+components:
+  schemas:
+    Plugin:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+
+    Packet:
+      description: запрос/ответ
+      required:
+        - isRequest
+        - sentAt
+        - payload
+      properties:
+        isRequest:
+          type: boolean
+        sentAt:
+          type: string
+          format: date-time
+        payload:
+          type: string
+
+    Session:
+      description: Сеанс обмена данными клиента и сервера
+      type: object
+      required:
+        - id
+        - packets
+      properties:
+        id: 
+          type: string
+          format: uuid
+        packets:
+          type: array
+          items: 
+            $ref: "#/components/schemas/Packet"
+
+    ProcessSessionRequest:
+      type: object
+      required:
+        - session
+        - plugins
+      properties:
+        session:
+          $ref: "#/components/schemas/Session"
+        plugins:
+          type: array
+          items:
+            type: string
+
+    ProcessSessionResponse:
+      allOf:
+        - $ref: "#/components/schemas/Session"
+        - type: object
+
+    GetAllPluginsResponse:
+      type: object
+      required:
+        - plugins
+      properties:
+        plugins:
+          type: array
+          items:
+            type: string
+
+  responses:
+    ProcessSessionResponse:
+      description: Результат обработки пакета
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProcessSessionResponse"
+
+    GetAllPluginsResponse:
+      description: Список загруженных плагинов
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetAllPluginsResponse"

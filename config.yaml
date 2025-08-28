@@ -1,0 +1,35 @@
+db-name: altron_db
+db-port: 5432
+db-user: postgres
+db-password: pass
+db-driver: postgres
+db-schema: public
+db-migrations-directory: "./migrations"
+db-ssl: disable
+
+amqp-port: 5672
+amqp-user: user
+amqp-password: pass
+
+redis-expiration-time: 30m
+redis-port: 6379
+redis-user: user
+redis-password: pass
+redis-prefix: altron
+
+altron-port: 64001
+altron-session-port: 64002
+altron-plugin-port: 64003
+altron-converter-port: 64004
+altron-connection-port: 64005
+
+udp-stream-timeout: 30s
+tcp-stream-timeout: 30s
+
+altron-containers:
+  core: enmex/altron:core-latest
+  session: enmex/altron:session-latest
+  frontend: enmex/altron:frontend-latest
+  connection: enmex/altron:connection-latest
+  plugin: enmex/altron:plugin-latest
+  converter: enmex/altron:converter-latest

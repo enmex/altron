@@ -1,0 +1,17 @@
+import sys 
+import string
+import random
+from pwn import *
+
+def generator(size=12, chars=string.digits + string.ascii_letters):
+    return ''.join(random.choice(chars) for _ in range(size))
+
+#host = sys.argv[1]
+host = "{{.AltronHost}}"
+port = {{.ServicePort}}
+
+s = remote(host, port)
+
+{{.Exploit}}
+
+s.close()

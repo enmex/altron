@@ -1,0 +1,253 @@
+openapi: 3.0.3
+info:
+  title: Altron session
+  description: Сервис сессий альтрона
+  version: 0.0.1
+servers:
+  - description: Local server
+    url: http://localhost:12001/
+
+paths:
+  /ports:
+    post:
+      tags:
+        - Port
+      description:  Добавить хосты сервисов
+      summary: Добавить хосты сервисов
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePortsRequest"
+      responses:
+        201:
+          description: ok
+        400:
+          description: что-то пошло не так
+    delete:
+      tags:
+        - Port
+      description: Удалить порт
+      summary: Удалить порт
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletePortRequest"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /logs/{containerID}:
+    get:
+      tags:
+        - Logs
+      description: Получение последних логов контейнера
+      summary: Получение последних логов контейнера
+      parameters:
+        - $ref: "#/components/parameters/containerID"
+      responses:
+        200:
+          $ref: "#/components/responses/GetLatestContainerLogsResponse"
+        400:
+          description: что-то пошло не так
+
+  /logs:
+    patch:  
+      tags:
+        - Logs
+      description: Обновить контейнер для прослушивания логов
+      summary: Обновить контейнер для прослушивания логов
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/UpdateContainerRequest"
+      responses:
+        200: 
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /pcaps:
+    post:
+      tags:
+        - Pcap
+      description: Импорт pcap файла
+      summary: Испорт pcap файла
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: "#/components/schemas/UploadPcapRequest"
+      responses:
+        200:
+          description: ok
+        400:
+          description: ok
+
+components:
+  schemas:
+    UploadPcapRequest:
+      required:
+        - fileName
+      properties:
+        fileName:
+          type: string
+
+    PortRequest: 
+      required:
+        - port
+      properties:
+        port:
+          type: integer
+          format: uint16
+        containerID:
+          type: string
+
+    DeletePortRequest:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/PortRequest"
+        - type: object
+
+    CreatePortsRequest:
+      type: object
+      required:
+        - ports
+      properties:
+        ports:
+          type: array
+          items:
+            $ref: "#/components/schemas/PortRequest"
+
+    UpdateContainerRequest:
+      type: object
+      required:
+        - newContainer
+      properties:
+        oldContainer:
+          type: string
+        newContainer:
+          type: string
+
+    ScanHostServicesResponse:
+      type: object
+      required:
+        - services
+      properties:
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceResponse"
+
+    ServiceResponse:
+      type: object
+      required:
+        - port
+        - name
+      properties:
+        port:
+          type: integer
+          format: uint16
+        name: 
+          type: string
+        containerID:
+          type: string
+
+    ScanHostServiceResponse:
+      type: object
+      required:
+        - link
+      properties:
+        link:
+          type: string
+
+    GetLatestContainerLogsResponse:
+      type: object
+      required:
+        - logs
+      properties:
+        logs:
+          type: array
+          items:
+            type: string
+
+    Error:
+      description: Числовой код ошибки и описание что пошло не так
+      type: object
+      required:
+        - error_code
+        - message
+      properties:
+        error_code:
+          type: string
+          enum:
+            - BAD_REQUEST
+            - INTERNAL_SERVER_ERROR
+          example: BAD_REQUEST
+        message:
+          type: string
+          description: Описание ошибки
+
+    ErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+  
+  responses:
+    ErrorResponse:
+      description: Давай по новой миша
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    
+    ScanHostServicesResponse:
+      description: Сканирование портов
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ScanHostServicesResponse"
+
+    ScanHostServiceResponse:
+      description: Сканирование сервиса
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ScanHostServiceResponse"
+
+    GetLatestContainerLogsResponse:
+      description: Получение последних логов контейнера
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetLatestContainerLogsResponse"
+  
+  parameters:
+    workspaceID:
+      name: workspaceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    servicePort:
+      name: servicePort
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: uint16
+    containerID:
+      name: containerID
+      in: path
+      required: true
+      schema:
+        type: string

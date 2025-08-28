@@ -1,0 +1,136 @@
+version: '3.9'
+volumes:
+  postgres_data:
+  redis_data:
+
+services:
+  frontend:
+    container_name: frontend
+    depends_on:
+      - core
+    ports:
+      - "31000:31000"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+
+  db:
+    container_name: db
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: altron_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: pass
+      PGPORT: 5432
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d altron_db']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  rabbitmq:
+    container_name: rabbitmq
+    build:
+      context: ./
+      dockerfile: ./docker/rabbitmq.dockerfile
+    image: rabbitmq:docker
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${AMQP_USER:-user}
+      - RABBITMQ_DEFAULT_PASS=${AMQP_PASS:-pass}
+    env_file:
+      - .env
+
+  redis:
+    container_name: redis
+    image: redis
+    command: redis-server --port 6379 --save 20 1 --loglevel warning --requirepass pass
+    ports:
+      - "6379:6379"
+    volumes: 
+      - redis_data:/data
+
+  core:
+    container_name: core
+    depends_on:
+      - db
+      - sftp
+      - rabbitmq
+      - redis
+      - plugin
+      - session
+      - converter
+      - connection
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/core.dockerfile
+    ports:
+      - "64001:64001"  
+    env_file:
+      - .env
+
+  plugin:
+    container_name: plugin
+    restart: always
+    build: 
+      context: .
+      dockerfile: ./docker/plugin.dockerfile
+    ports:
+      - "64003:64003"  
+    env_file:
+      - .env
+
+  session:
+    container_name: session
+    depends_on:
+      - rabbitmq
+      - redis
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/session.dockerfile
+    privileged: true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - .env
+    network_mode: host
+
+  converter:
+    container_name: converter
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/converter.dockerfile
+    ports:
+      - "64004:64004"  
+
+  sftp:
+    container_name: sftp
+    image: drakkan/sftpgo:latest
+    ports:
+      - 2022:2022
+      - 8080:8080
+
+  connection:
+    container_name: connection
+    depends_on:
+      - rabbitmq
+      - redis
+    restart: always
+    build:
+      context: .
+      dockerfile: ./docker/connection.dockerfile
+    ports:
+      - "64005:64005"  
+    env_file:
+      - .env

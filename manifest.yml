@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: altron
+spec:
+  replicas: 15
+  selector:
+    matchLabels:
+      app: altron
+  template:
+    metadata:
+      labels:
+        app: altron
+    spec:
+      containers:
+        - name: frontend
+          image: enmex/altron:frontend-latest
+          ports:
+            - containerPort: 31000
+          env:
+            - name: PORT
+              value: "31000"
+          imagePullPolicy: "Always"
+        - name: core
+          image: enmex/altron:core-latest
+          env:
+            - name: ALTRON_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ALTRON_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MANAGER_HOST
+              value: "109.194.123.26"
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 64001
+        - name: connection
+          image: enmex/altron:connection-latest
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 64005
+        - name: plugin
+          image: enmex/altron:plugin-latest
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 64003
+        - name: converter
+          image: enmex/altron:converter-latest
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 64004
+        - name: rabbitmq
+          image: rabbitmq:3.13-rc-alpine
+          imagePullPolicy: "Always"
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: user
+            - name: RABBITMQ_DEFAULT_PASS
+              value: pass
+          ports:
+            - containerPort: 5672
+        - name: db
+          image: postgres:16-alpine
+          env:
+            - name: POSTGRES_DB
+              value: "altron_db"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "pass"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+            - name: migrations
+              mountPath: /docker-entrypoint-initdb.d
+          ports:
+            - containerPort: 5432
+        - name: redis
+          image: redis
+          ports:
+            - containerPort: 6379
+        - name: session
+          image: enmex/altron:session-latest
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+          imagePullPolicy: "Always"
+          ports:
+            - containerPort: 64002
+      imagePullSecrets:
+        - name: altron-secret
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+        - name: migrations
+          hostPath:
+            path: /root/altron/migrations
+

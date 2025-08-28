@@ -1,0 +1,262 @@
+openapi: 3.0.3
+info:
+  title: Altron connection
+  description: Сервис соединений по веб-сокету
+  version: 0.0.1
+servers:
+  - description: Local server
+    url: http://localhost:12003/
+
+paths:
+  /connect/sessions/{servicePort}:
+    get:
+      tags:
+        - Connection
+      description: Подключение по веб-сокету
+      summary: Подключение по веб-сокету
+      parameters:
+        - $ref: "#/components/parameters/servicePort"
+      responses:
+        101:
+          description: ok
+      x-websocket: true
+
+  /connect/logs/{containerID}:
+    get:
+      tags:
+        - Connection
+      description: Подключение к логам
+      summary: Подключение к логам
+      parameters:
+        - $ref: "#/components/parameters/containerID"
+      responses:
+        101:
+          description: ok
+      x-websocket: true
+
+  /connect/agent:
+    get:
+      tags:
+        - Agent
+      description: Подключение агента
+      summary: Подключение агента
+      responses:
+        101:
+          description: ok
+      x-websocket: true
+
+  /connect/agent/status:
+    get:
+      tags: 
+        - Agent
+      description: Проверка состояния агента
+      summary: Проверка состояния агента
+      responses:
+        200:
+          $ref: "#/components/responses/GetAgentStatusResponse"
+        400:
+          description: что-то пошло не так
+  
+  /workspaces/{workspaceID}/sessions/{servicePort}:
+    put:
+      tags:
+        - Workspace
+      description: Слушать сессии из очереди для занесения их в воркспейс
+      summary: Слушать сессии из очереди для занесения их в воркспейс
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+        - $ref: "#/components/parameters/servicePort"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartSessionsListeningRequest"
+      responses:
+        200:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /workspaces/{workspaceID}/sessions:
+    delete:
+      tags:
+        - Workspace
+      description: Остановить прослушку сессий
+      summary: Остановить прослушку сессий
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /workspaces/pcaps/{pcapWorkspaceID}:
+    put:
+      tags:
+        - Pcap
+      description: Начать прослушку сессий из файла
+      summary: Начать прослушку сессий из файла
+      parameters:
+        - $ref: "#/components/parameters/pcapWorkspaceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartPcapListeningRequest"
+      responses:
+        200:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /events:
+    post:
+      tags:
+        - Event
+      description: Создать событие
+      summary: Создать событие
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventRequest"
+      responses:
+        201:
+          $ref: "#/components/responses/CreateEventResponse"
+        400: 
+          description: что-то пошло не так
+
+components:
+  schemas:
+    StartSessionsListeningRequest:
+      type: object
+      required:
+        - timeout
+        - isChecker
+      properties:
+        timeout:
+          type: string
+          example: 5m
+        startTime:
+          type: integer
+          format: int64
+        isChecker:
+          type: boolean
+
+    StartPcapListeningRequest:
+      type: object
+      required:
+        - fileName
+      properties:
+        fileName:
+          type: string
+
+    CreateEventRequest:
+      type: object
+      required:
+        - type
+        - data
+        - waitForResponse
+      properties:
+        type:
+          type: string
+        data:
+          type: string
+          format: byte
+        waitForResponse:
+          type: boolean
+
+    Error:
+      description: Числовой код ошибки и описание что пошло не так
+      type: object
+      required:
+        - error_code
+        - message
+      properties:
+        error_code:
+          type: string
+          enum:
+            - BAD_REQUEST
+            - INTERNAL_SERVER_ERROR
+          example: BAD_REQUEST
+        message:
+          type: string
+          description: Описание ошибки
+
+    CreateEventResponse:  
+      type: object
+      required:
+        - status
+        - data
+      properties:
+        status:
+          type: string
+        data:
+          type: string
+          format: byte
+
+    GetAgentStatusResponse:
+      type: object
+      required: 
+        - status
+      properties:
+        status:
+          type: string
+
+    ErrorResponse:
+      allOf:
+        - $ref: "#/components/schemas/Error"
+        - type: object
+  
+  responses:
+    ErrorResponse:
+      description: Давай по новой миша
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    CreateEventResponse:
+      description: Ответ агента
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CreateEventResponse"
+    GetAgentStatusResponse:
+      description: Получить статус агента
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetAgentStatusResponse"
+
+  parameters:
+    workspaceID:
+      name: workspaceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    servicePort:
+      name: servicePort
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: uint16
+    containerID:
+      name: containerID
+      in: path
+      required: true
+      schema:
+        type: string
+    pcapWorkspaceID:
+      name: pcapWorkspaceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid

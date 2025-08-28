@@ -1,0 +1,1870 @@
+openapi: 3.0.3
+info:
+  title: Altron
+  description: Анализатор трафика
+  version: 0.0.1
+servers:
+  - description: Local server
+    url: http://localhost:12000/
+
+paths:
+  /auth/signIn:
+    post:
+      tags:
+        - User
+      summary: Вход пользователя в систему
+      description: Вход пользователя в систему
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/AuthRequest"
+      responses:
+        201:
+          $ref: "#/components/responses/AuthResponse"
+        400:
+          description: что-то пошло не так
+
+  /users/info:
+    get:
+      tags:
+        - User
+      summary: Логин и шифр-пароль пользователя
+      description: Логин и шифр-пароль пользователя
+      responses:
+        200:
+          $ref: "#/components/responses/GetUserInfoResponse"
+
+  /dashboard:
+    get:
+      tags:
+        - Dashboard
+      summary: Получить доску с сервисами
+      description: Получить доску с сервисами
+      responses:
+        200:
+          $ref: "#/components/responses/GetDashboardResponse"
+        400:
+          description: что-то пошло не так
+
+  /services/scan:
+    get:
+      tags:
+        - Service
+      summary: Получить список запущенных сервисов хоста
+      description: Получить список запущенных сервисов хоста
+      parameters:
+        - $ref: "#/components/parameters/scope"
+      responses:
+        200:
+          $ref: "#/components/responses/ScanHostServicesResponse"
+        400:
+          description: что-то пошло не так
+
+  /services/scan/{servicePort}:
+    get:
+      tags:
+        - Service
+      description: Получить подробную информацию о сервисе
+      summary: Получить подробную информацию о сервисе
+      parameters:
+        - $ref: "#/components/parameters/servicePort"
+      responses:
+        200:
+          $ref: "#/components/responses/ScanHostServiceResponse"
+        400:
+          description: что-то пошло не так
+
+  /services:
+    post:
+      tags:
+        - Service
+      summary: Добавить сервис
+      description: Добавить сервис
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/CreateServiceRequest"
+      responses:
+        201: 
+          $ref: "#/components/responses/CreateServiceResponse"
+        400:
+          description: что-то пошло не так
+
+  /services/{serviceID}:
+    delete:
+      tags:
+        - Service
+      summary: Удалить сервис из дешборда
+      description: Удалить сервис из дешборда
+      parameters:
+        - $ref: "#/components/parameters/serviceID"
+      responses:
+        204:
+          description: Удалено успешно
+        400:
+          description: что-то пошло не так
+    patch:
+      tags:
+        - Service
+      summary: Обновить инфу о сервисе
+      description: Обновить инфу о сервисе
+      parameters:
+        - $ref: "#/components/parameters/serviceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/UpdateServiceRequest"
+      responses:
+        200:
+          description: Обновлено
+        400:
+          description: что-то пошло не так
+
+  /services/{servicePort}:
+    get:
+      tags:
+        - Workspace
+      summary: Получить все воркспейсы сервиса 
+      description: Получить все воркспейсы сервиса
+      parameters:
+        - $ref: "#/components/parameters/servicePort"
+      responses:
+        200:
+          $ref: "#/components/responses/GetServiceResponse"
+        400:
+          description: что-то пошло не так
+
+  /workspaces:
+    post:
+      tags:
+        - Workspace
+      summary: Создать воркспейс с сеансами
+      description: Создать воркспейс с сеансами
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/CreateWorkspaceRequest"
+      responses:
+        201:
+          $ref: "#/components/responses/CreateWorkspaceResponse"
+        400:
+          description: что-то пошло не так
+
+  /workspaces/reset:
+    post:
+      tags:
+        - Workspace
+      summary: Задать всем воркспейсам статус completed
+      description: Задать всем воркспейсам статус completed
+      responses:
+        200:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /workspaces/{workspaceID}:
+    get:
+      tags:
+        - Workspace
+      summary: Получить данные о воркспейсе
+      description: Получить данные о воркспейсе
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        200:
+          $ref: "#/components/responses/GetWorkspaceResponse"
+        400:
+          description: что-то пошло не так
+    patch:
+      tags:
+        - Workspace
+      summary: Обновить воркспейс
+      description: Обновить воркспейс
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/UpdateWorkspaceRequest"
+      responses:
+        200:
+          description: ok
+        400:
+          description: что-то пошло не так
+    delete:
+      tags:
+        - Workspace
+      summary: Удалить воркспейс
+      description: Удалить воркспейс
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /sessions:
+    post:
+      tags:
+        - Session
+      description: Сохранить сессию
+      summary: Сохранить сессию
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionRequest"
+      responses:
+        201:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /sessions/{sessionID}:
+    get:
+      tags:
+        - Workspace
+      description: Получить сеанс
+      summary: Получить сеанс
+      parameters:
+        - $ref: "#/components/parameters/sessionID"
+      responses:
+        200:
+          $ref: "#/components/responses/GetSessionResponse"
+        400:
+          description: что-то пошло не так
+
+  /workspaces/{workspaceID}/sessions:
+    get:
+      tags:
+        - Workspace
+      description: Получить список сеансов воркспейса
+      summary: Получить список сеансов воркспейса
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+        - $ref: '#/components/parameters/pagination'
+      responses:
+        200:
+          $ref: "#/components/responses/GetSessionsResponse"
+        400:
+          description: что-то пошло не так
+    post:
+      tags:
+        - Workspace
+      summary: Добавить сеансы в воркспейс
+      description: Добавить сеансы в воркспейс
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/AddSessionsToWorkspaceRequest"
+      responses:
+        200:
+          description: ok
+        400:
+          description: что-то пошло не так
+    delete:
+      tags:
+        - Workspace
+      summary: Удалить все сеансы из воркспейса
+      description: Удалить все сеансы из воркспейса
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /workspaces/{workspaceID}/sessions/search:
+    post:
+      tags:
+        - Workspace
+      description: Поиск сессий в воркспейсе
+      summary: Поиск сессий в воркспейсе
+      parameters:
+        - $ref: '#/components/parameters/workspaceID'
+        - $ref: '#/components/parameters/pagination'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/SearchSessionsRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/SearchSessionsResponse"
+        400:
+          description: что-то пошло не так
+
+  /carts/{workspaceID}:
+    post:
+      tags:
+        - Cart
+      description: Добавить сессии в корзину
+      summary: Добавить сессии в корзину
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddSessionsToCartRequest"
+      responses:
+        200:
+          description: ok
+        400: 
+          description: что-то пошло не так
+    get:
+      tags:
+        - Cart
+      description: получить корзину
+      summary: получить корзину
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+        - $ref: "#/components/parameters/pagination"
+      responses:
+        200:
+          $ref: "#/components/responses/GetCartResponse"
+        400:
+          description: что-то пошло не так
+    delete:
+      tags:
+        - Cart
+      description: очистить корзину
+      summary: очистить корзину
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+      
+  /carts/{workspaceID}/{sessionID}:
+    delete: 
+      tags:
+        - Cart
+      description: Удалить сессию из корзины
+      summary: Удалить сессию из корзины
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+        - $ref: "#/components/parameters/sessionID"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /carts/{workspaceID}/sessions/merge:
+    post:
+      tags:
+        - Session
+      description: Склеить сессии
+      summary: Склеить сессии
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        200:
+          $ref: "#/components/responses/MergeSessionsResponse"
+        400:
+          description: что-то пошло не так
+
+  /conversions/packets:
+    post:
+      tags:
+        - Sploit conversion
+      summary: Конвертация сеанса в сплойт
+      description: Конвертация сеанса в сплойт
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/ConvertSessionToExploitRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/ConvertToExploitResponse"
+        400:
+          description: что-то пошло не так
+
+  /conversions/files:
+    post:
+      tags:
+        - Extract files
+      summary: экспорт файлов из пакета
+      description: экспорт файлов из пакета
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/ExtractFilesFromPacketRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/ExtractFilesResponse"
+        400:
+          description: что-то пошло не так
+
+  /conversions/sessions:
+    post:
+      tags:
+        - Sploit conversion
+      summary: Конвертация пакета в сплойт
+      description: Конвертация пакета в сплойт
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/ConvertPacketToExploitRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/ConvertToExploitResponse"
+        400:
+          description: что-то пошло не так
+
+  /plugins:
+    get:
+      tags:
+        - Plugin
+      summary: Получить все подключенные плагины
+      description: Получить все подключенные плагины
+      responses:
+        200:
+          $ref: "#/components/responses/GetAllPluginsResponse"
+        400:
+          description: что-то пошло не так
+
+  /filters:
+    post: 
+      tags:
+        - Filter
+      description: Создание фильтра
+      summary: Создание фильтра
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFilterRequest"
+      responses:
+        201:
+          description: ok 
+        400:
+          description: что-то пошло не так
+    get:
+      tags:
+        - Filter
+      description: Получить фильтры
+      summary: Получить фильтры
+      parameters:
+        - in: query
+          required: true
+          name: servicePort
+          schema:
+            type: integer
+            format: uint16
+      responses:
+        200:
+          $ref: "#/components/responses/GetAllFiltersResponse"
+        400:
+          description: что-то пошло не так
+  
+  /filters/{filterID}:  
+    delete: 
+      tags:
+        - Filter
+      description: Удалить фильтр
+      summary: Удалить фильтр
+      parameters:
+        - $ref: "#/components/parameters/filterID"
+      responses:
+        204:
+          description: ok
+        400:
+          description: что-то пошло не так
+    patch:
+      tags:
+        - Filter
+      description: Обновить фильтр
+      summary: Обновить фильтр
+      parameters:
+        - $ref: "#/components/parameters/filterID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFilterRequest"
+      responses:
+        200:
+          description: ok
+        400:
+          description: что-то пошло не так
+
+  /session-analyzer/components:  
+    get:
+      tags:
+        - Session Analyzer
+      description: Получить все анализируемые компоненты
+      summary: Получить все анализируемые компоненты
+      responses:
+        200:
+          $ref: "#/components/responses/GetAnalyzerComponentsResponse"
+        400:
+          description: что-то пошло не так
+
+  /session-analyzer/services/{servicePort}:
+    get:
+      tags:
+        - Session Analyzer
+      description: Получить слепок чекера сервиса
+      summary: Получить слепок чекера сервиса
+      parameters:
+        - $ref: "#/components/parameters/servicePort"
+      responses:
+        200:
+          $ref: "#/components/responses/GetSessionAnalyzerResponse"
+        400:
+          description: что-то пошло не так
+
+  /session-analyzer/services/{servicePort}/checker:
+    get:  
+      tags:
+        - Session Analyzer
+      description: Получить маску чекера
+      summary: Получить маску чекера
+      parameters:
+        - $ref: "#/components/parameters/servicePort"
+      responses:
+        200:
+          $ref: "#/components/responses/GetSessionAnalyzerResponse"
+        400:
+          description: что-то пошло не так
+
+  /session-analyzer/workspaces/{workspaceID}:
+    post:
+      tags: 
+        - Session Analyzer
+      description: Сохранить данные анализатора воркспейса
+      summary: Сохранить данные анализатора воркспейса
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnalyzerPayloadRequest"
+      responses:
+        201:
+          description: ok
+        400:
+          description: что-то пошло не так
+    get:
+      tags:
+        - Session Analyzer
+      description: Получить данные анализатора
+      summary: Получить данные анализатора воркспейса
+      parameters:
+        - $ref: "#/components/parameters/workspaceID"
+      responses:
+        200:
+          $ref: "#/components/responses/GetSessionAnalyzerResponse"
+        400:
+          description: ok
+
+  /pcaps:
+    post:
+      tags:
+        - Pcap
+      description: Загрузить pcap файл
+      summary: Загрузить pcap файл
+      responses:  
+        201:
+          $ref: "#/components/responses/CreatePcapWorkspaceResponse"
+        400:
+          description: что-то пошло не так
+
+  /pcap-workspaces/{pcapWorkspaceID}:
+    get:
+      tags:
+        - Pcap
+      description: Получить информацию о pcap воркспейсе
+      summary: Получить информацию о pcap воркспейсе
+      parameters:
+        - $ref: "#/components/parameters/pcapWorkspaceID"
+      responses:
+        200:
+          $ref: "#/components/responses/GetPcapWorkspaceResponse"
+        400:
+          description: что-то пошло не так
+    patch:
+      tags:
+        - Pcap
+      description: обновить статус pcap воркспейса
+      summary: обновить статус pcap воркспейса
+      parameters:
+        - $ref: "#/components/parameters/pcapWorkspaceID"
+      requestBody:  
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePcapWorkspaceRequest"
+      responses:
+        200:
+          description: ok
+        400: 
+          description: что-то пошло не так
+    delete:
+      tags:
+        - Pcap
+      description: Удалить pcap воркспейс
+      summary: Удалить pcap воркспейс
+      parameters:
+        - $ref: "#/components/parameters/pcapWorkspaceID"
+      responses:
+        204:
+          description: ok
+        400: 
+          description: что-то пошло не так
+
+  /pcap-workspaces/{pcapWorkspaceID}/sessions:
+    post:
+      tags:
+        - Pcap
+      description: Добавить сессию в pcap воркспейс
+      summary: Добавить сессию в pcap воркспейс
+      parameters:
+        - $ref: "#/components/parameters/pcapWorkspaceID"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddPcapSessionRequest"
+      responses:
+        200:
+          description: ok
+        400: 
+          description: что-то пошло не так
+    get:
+      tags:
+        - Pcap
+      description: Получить сессии в pcap воркспейсе
+      summary: Получить сессии в pcap воркспейсе
+      parameters:
+        - $ref: "#/components/parameters/pcapWorkspaceID"
+        - $ref: "#/components/parameters/pagination"
+      responses:
+        200:
+          $ref: "#/components/responses/GetSessionsResponse"
+        400: 
+          description: что-то пошло не так
+
+  /admin/reconfigure:
+    post:
+      tags:
+        - Admin
+      description: Реконфигурация альтрона
+      summary: Реконфигурация альтрона
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReconfigureAltronRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/ReconfigureAltronResponse"
+        400:
+          description: что-то пошло не так
+
+  /admin/info:
+    get:
+      tags:
+        - Admin
+      description: Информация об альтроне
+      summary: Информация об альтроне
+      responses:
+        200:
+          $ref: "#/components/responses/GetInfoResponse"
+        400:
+          description: что-то пошло не так
+
+  /admin/signIn:
+    post:
+      tags:
+        - Admin
+      description: Авторизация админа (менеджера)
+      summary: Авторизация админа (менеджера)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRequest"
+      responses:
+        200:
+          $ref: "#/components/responses/AuthResponse"
+        400:
+          description: что-то пошло не так
+      
+  /logs/{containerID}:
+    get:
+      tags:
+        - Logs
+      description: Получить список последних логов контейнера
+      summary: Получить список последних логов контейнера
+      parameters:
+        - $ref: "#/components/parameters/containerID"
+      responses:
+        200:
+          $ref: "#/components/responses/GetLatestContainerLogsResponse"
+        400:
+          description: что-то пошло не так
+
+components:
+  schemas:
+    Service:
+      description: Уязвимый сервис
+      type: object
+      required:
+        - id 
+        - name
+        - link
+        - port
+        - plugins
+      properties:
+        id:
+          type: string
+          format: uuid
+        name: 
+          type: string
+        link:
+          type: string
+        containerID:
+          type: string
+        port:
+          type: integer
+          format: uint16
+        plugins:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    Packet:
+      description: запрос/ответ
+      required:
+        - sentAt
+        - isRequest
+        - payload
+      properties:
+        sentAt:
+          type: string
+          format: date-time
+        isRequest:
+          type: boolean
+        payload:
+          type: string
+
+    Session:
+      description: Сеанс обмена данными клиента и сервера
+      type: object
+      required:
+        - id
+        - sentAt
+        - clientHost
+        - serverPort
+        - ttl
+        - protocol
+        - packets
+        - packetsCount
+        - requestsNumber
+        - averageResponseTime
+        - matchedFilters
+      properties:
+        id: 
+          type: string
+          format: uuid
+        sentAt:
+          type: string
+          format: date-time
+        clientHost:
+          type: string
+        serverPort:
+          type: integer
+          format: uint16
+        ttl:
+          type: integer
+          format: uint8
+        protocol:
+          type: string
+          example: tcp
+        packets:
+          type: array
+          items: 
+            $ref: "#/components/schemas/Packet"
+        packetsCount:
+          type: integer
+        averageResponseTime:
+          type: number
+          format: double
+        requestsNumber:
+          type: integer
+        matchedFilters:
+          type: array
+          items:
+            $ref: "#/components/schemas/SessionFilter"
+        clientUserAgent:
+          type: string
+
+    Workspace:
+      description: Воркспейс с сеансами для анализа
+      type: object
+      required:
+        - id
+        - name
+        - servicePort
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        servicePort:
+          type: integer
+          format: uint16
+        status: 
+          type: string
+          enum:
+            - LISTENING
+            - WAITING
+            - COMPLETED
+
+    Plugin:
+      description: Плагин с доп. функционалом
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    Filter:
+      description: Фильтр для сеанса
+      type: object
+      required:
+        - id
+        - name
+        - inRequest
+        - inResponse
+        - isBlocking
+        - color
+      properties:
+        id:
+          type: string
+          format: uuid
+        serviceId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        regex:
+          type: string
+        ttl:
+          type: integer
+          format: uint8
+        totalPackets:
+          type: integer
+        color:
+          type: string
+        inRequest:
+          type: boolean
+        inResponse:
+          type: boolean
+        isBlocking:
+          type: boolean
+
+    SessionFilter:
+      allOf:
+        - $ref: "#/components/schemas/Filter"
+        - type: object
+          required:
+            - matchesCount
+            - matchedPackets
+            - sessionID
+          properties:
+            matchesCount:
+              type: integer
+            matchedPackets:
+              type: array
+              items:
+                type: integer
+            sessionID:
+              type: string
+              format: uuid
+
+    Characteristic:
+      required:
+        - value
+        - number
+        - isSafe
+      properties:
+        value:
+          type: string
+        number:
+          type: integer
+        isSafe:
+          type: boolean
+
+    PcapWorkspace:
+      type: object
+      required:
+        - id
+        - fileName
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        status: 
+          type: string
+          enum:
+            - LISTENING
+            - COMPLETED
+
+    AddPcapSessionRequest:
+      type: object
+      required:
+        - session
+      properties:
+        session:
+          $ref: "#/components/schemas/Session"
+
+    ProcessSessionRequest:
+      type: object
+      required:
+        - session
+        - plugins
+      properties:
+        session:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+        plugins:
+          type: array
+          items:
+            type: string
+
+    AddPortRequest:
+      required:
+        - port
+      properties:
+        port:
+          type: integer
+          format: uint16
+
+    CreateFilterRequest:
+      required:
+        - name
+        - color
+        - inRequest
+        - inResponse
+        - isBlocking
+      properties:
+        name:
+          type: string
+        serviceId:
+          type: string
+          format: uuid
+        color:
+          type: string
+        regex:
+          type: string
+        ttl:
+          type: integer
+          format: uint8
+        totalPackets:
+          type: integer
+        inRequest:
+          type: boolean
+        inResponse:
+          type: boolean
+        isBlocking:
+          type: boolean
+
+    UpdateFilterRequest:
+      required:
+        - color
+        - inRequest
+        - inResponse
+        - isBlocking
+      properties:
+        color:
+          type: string
+        serviceId:
+          type: string
+          format: uuid
+        regex:
+          type: string
+        ttl:
+          type: integer
+          format: uint8
+        totalPackets:
+          type: integer
+        inRequest:
+          type: boolean
+        inResponse:
+          type: boolean
+        isBlocking:
+          type: boolean
+
+    CreateSessionRequest:
+      allOf:
+        - $ref: "#/components/schemas/Session"
+        - type: object
+
+    SelectedCharacteristic:
+      type: object
+      required:
+        - value
+        - selected
+        - blocked
+      properties:
+        value:
+          type: string
+        selected:
+          type: boolean
+        blocked:
+          type: boolean
+
+    SearchSessionsRequest:
+      type: object
+      required:
+        - selectedCharacteristics
+      properties:
+        searchValue:
+          type: string
+        filterID:
+          type: string
+          format: uuid
+        selectedCharacteristics:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/SelectedCharacteristic"
+
+    AddSessionsToCartRequest:
+      type: object
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    AuthResponse:
+      description: Ответ на авторизацию
+      type: object
+      required: 
+        - id
+        - token
+      properties:
+        id: 
+          type: string
+        token: 
+          type: string
+
+    DashboardServiceResponse:
+      type: object
+      required:
+        - name
+        - port
+      properties:
+        name:
+          type: string
+        port:
+          type: integer
+          format: uint16
+        containerID:
+          type: string
+
+    GetDashboardResponse:
+      type: object
+      required:
+        - services
+        - pcapWorkspaces
+      properties:
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/DashboardServiceResponse"
+        pcapWorkspaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/PcapWorkspace"
+
+    ConvertSessionToExploitRequest:
+      type: object
+      required:
+        - session
+        - exportType
+      properties:
+        session:
+          $ref: "#/components/schemas/Session"
+        exportType:
+          type: string
+
+    ConvertPacketToExploitRequest:
+      type: object
+      required:
+        - packet
+        - exportType
+        - servicePort
+      properties:
+        packet:
+          $ref: "#/components/schemas/Packet"
+        exportType:
+          type: string
+        servicePort:
+          type: integer
+          format: uint16
+
+    CreateServiceRequest:
+      type: object
+      required:
+        - name
+        - link
+        - port
+        - plugins
+      properties:
+        name:
+          type: string
+        port:
+          type: integer
+          format: uint16
+        link:
+          type: string
+        containerID:
+          type: string
+        plugins:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    UpdateServiceRequest:
+      type: object
+      required:
+        - plugins
+      properties:
+        name:
+          type: string
+        link:
+          type: string
+        containerID:
+          type: string
+        plugins:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    CreateWorkspaceRequest:
+      type: object
+      required:
+        - name
+        - servicePort
+        - timeout
+      properties:
+        name:
+          type: string
+        timeout:
+          type: string
+          example: 5m
+        servicePort:
+          type: integer
+          format: uint16
+        startTime:
+          type: integer
+          format: int64
+
+    UpdateWorkspaceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        status: 
+          type: string
+          enum:
+            - LISTENING
+            - WAITING
+            - COMPLETED
+
+    AddSessionsToWorkspaceRequest:
+      type: object
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+
+    AuthRequest:
+      description: Запрос на вход в систему
+      type: object
+      required:
+        - password
+      properties:
+        password: 
+          type: string
+
+    CreateAnalyzerPayloadRequest:
+      required:
+        - payload
+      properties:
+        payload:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/Characteristic"
+
+    ExtractFilesFromPacketRequest:
+      required:
+        - packet
+        - packetNumber
+        - sessionID
+      properties:
+        packet:
+          $ref: "#/components/schemas/Packet"
+        packetNumber:
+          type: integer
+        sessionID:
+          type: string
+          format: uuid
+
+    UpdatePcapWorkspaceRequest:
+      required:
+        - status
+      properties: 
+        status: 
+          type: string
+          enum:
+            - LISTENING
+            - WAITING
+            - COMPLETED
+
+    ReconfigureAltronRequest:
+      required:
+        - password
+      properties: 
+        password: 
+          type: string
+
+    GetAnalyzerComponentsResponse:
+      required:
+        - components
+      properties:
+        components:
+          type: array
+          items:
+            type: string
+
+    ServiceWorkspaceResponse:
+      type: object
+      required:
+        - id
+        - name
+        - status
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status: 
+          type: string
+          enum:
+            - LISTENING
+            - WAITING
+            - COMPLETED
+
+    GetServiceResponse: 
+      type: object
+      required:
+        - id
+        - name
+        - port
+        - link
+        - plugins
+        - workspaces
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        port:
+          type: integer
+          format: uint16
+        link:
+          type: string
+        containerID:
+          type: string
+        plugins:
+          type: array
+          items:
+            type: string
+            format: uuid
+        workspaces:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceWorkspaceResponse"
+
+    ConvertToExploitResponse:
+      type: object
+      required:
+        - exploit
+      properties:
+        exploit:
+          type: string
+
+    CreateWorkspaceResponse:
+      type: object
+      required:
+        - id
+        - name
+        - servicePort
+        - sessions
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        servicePort:
+          type: integer
+          format: uint16
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+
+    CreateServiceResponse:
+      type: object
+      required:
+        - id
+        - name
+        - link
+        - port
+        - plugins
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        link: 
+          type: string
+        port:
+          type: integer
+          format: uint16
+        plugins:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    GetAllPluginsResponse:
+      type: object
+      required:
+        - plugins
+      properties:
+        plugins:
+          type: array
+          items:  
+            type: string
+
+    ProcessSessionResponse:
+      allOf:
+        - $ref: "#/components/schemas/Session"
+        - type: object
+
+    ScanHostServicesResponse:
+      type: object
+      required:
+        - services
+      properties:
+        services:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServiceResponse"
+
+    ServiceResponse:
+      type: object
+      required:
+        - port
+        - name
+        - isPublic
+      properties:
+        port:
+          type: integer
+          format: uint16
+        name: 
+          type: string
+        container:
+          $ref: "#/components/schemas/ContainerResponse"
+        isPublic:
+          type: boolean
+
+    ScanHostServiceResponse:
+      allOf:
+        - $ref: "#/components/schemas/Service"
+        - type: object
+
+    GetSessionsResponse:
+      type: object
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+
+    GetAllFiltersResponse:
+      type: object
+      required:
+        - filters
+      properties:
+        filters:
+          type: array
+          items:
+            $ref: "#/components/schemas/Filter"
+
+    SearchSessionsResponse:
+      type: object
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+
+    GetSessionResponse:
+      allOf:
+        - $ref: "#/components/schemas/Session"
+        - type: object
+
+    MergeSessionsResponse:
+      required:
+        - sessionID
+      properties:
+        sessionID:
+          type: string
+          format: uuid
+
+    GetCartResponse:
+      required:
+        - sessions
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+
+    ExtractFilesResponse:
+      required:
+        - data
+      properties:
+        data:
+          type: string
+
+    CreatePcapWorkspaceResponse:
+      required:
+        - id
+        - fileName
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        status:
+          type: string
+          enum:
+            - LISTENING
+            - WAITING
+            - COMPLETED
+
+    ContainerResponse:
+      required:
+        - id
+        - name
+        - image
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+
+    GetSessionAnalyzerResponse:
+      required:
+        - hasChecker
+        - analyzer
+      properties:
+        hasChecker:
+          type: boolean
+        analyzer:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/Characteristic"
+
+    ReconfigureAltronResponse:
+      required:
+        - password
+      properties:
+        password:
+          type: string
+
+    GetInfoResponse:
+      required:
+        - username
+      properties:
+        username:
+          type: string
+
+    GetLatestContainerLogsResponse:
+      required:
+        - logs
+      properties:
+        logs:
+          type: array
+          items:
+            type: string
+
+    GetWorkspaceResponse:
+      allOf:
+        - $ref: "#/components/schemas/Workspace"
+        - type: object
+
+    GetUserInfoResponse:
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    GetPcapWorkspaceResponse:
+      required:
+        - id
+        - fileName
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        status: 
+          type: string
+          enum:
+            - LISTENING
+            - COMPLETED
+
+  responses:
+    AuthResponse:
+      description: Ответ на регистрацию
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AuthResponse"
+
+    GetDashboardResponse:
+      description: Получить все сервисы на дешборде
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetDashboardResponse"
+
+    GetServiceResponse:
+      description: Посмотреть сервис со стримами
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetServiceResponse"
+
+    CreateWorkspaceResponse:
+      description: Ответ на создание воркспейса
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CreateWorkspaceResponse"
+
+    CreateServiceResponse:
+      description: Ответ на создание сервиса
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CreateServiceResponse"
+
+    ConvertToExploitResponse:
+      description: Результат конвертации сеанса в код
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConvertToExploitResponse"
+
+    GetAllPluginsResponse:
+      description: Список подключенных плагинов
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetAllPluginsResponse"
+
+    ProcessSessionResponse:
+      description: Результат обработки пакета
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ProcessSessionResponse"
+
+    ScanHostServicesResponse:
+      description: Список портов хоста
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ScanHostServicesResponse"
+
+    ScanHostServiceResponse:
+      description: Подробная информация о сервисе хоста
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ScanHostServiceResponse"
+
+    GetSessionsResponse:
+      description: Список сеансов
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetSessionsResponse"
+
+    GetAllFiltersResponse:
+      description: Получение всех фильтров
+      content:  
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetAllFiltersResponse"
+    
+    SearchSessionsResponse:
+      description: Поиск сессий
+      content: 
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SearchSessionsResponse"
+
+    GetSessionResponse:
+      description: Получение сессии
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetSessionResponse"
+
+    GetAnalyzerComponentsResponse:
+      description: Получить все компоненты анализатора
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetAnalyzerComponentsResponse"
+
+    MergeSessionsResponse:
+      description: Смержить сессии
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MergeSessionsResponse"
+
+    GetCartResponse:
+      description: Получить корзину
+      content:
+        application/json:
+          schema: 
+            $ref: "#/components/schemas/GetCartResponse"
+
+    ExtractFilesResponse:
+      description: Экстрактинг файлов
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ExtractFilesResponse"
+
+    CreatePcapWorkspaceResponse:
+      description: Создать pcap воркспейс
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CreatePcapWorkspaceResponse"
+
+    GetSessionAnalyzerResponse:
+      description: Получить данные анализатора
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetSessionAnalyzerResponse"
+
+    ReconfigureAltronResponse:
+      description: Сброс данных альтрона
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReconfigureAltronResponse"
+
+    GetInfoResponse:
+      description: Получение информации об альтроне
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetInfoResponse"
+
+    GetLatestContainerLogsResponse:
+      description: Получить список последних логов контейнера
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetLatestContainerLogsResponse"
+
+    GetWorkspaceResponse:
+      description: Получить данные о воркспейсе
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetWorkspaceResponse"
+
+    GetUserInfoResponse:
+      description: Получить данные о пользователе
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetUserInfoResponse"
+
+    GetPcapWorkspaceResponse:
+      description: Получить информацию о pcap воркспейсе
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GetPcapWorkspaceResponse"
+
+  parameters:
+    serviceID:
+      name: serviceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    workspaceID:
+      name: workspaceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    workspaceName:
+      name: workspaceName
+      in: path
+      required: true
+      schema:
+        type: string
+    sessionID:
+      name: sessionID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    filterID:
+      name: filterID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    servicePort:
+      name: servicePort
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: uint16
+    pagination:
+      name: pagination
+      in: query
+      required: true
+      schema:
+        type: integer
+    componentName:
+      name: componentName
+      in: path
+      required: true
+      schema: 
+        type: string
+    pcapWorkspaceID:
+      name: pcapWorkspaceID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    containerID:
+      name: containerID
+      in: path
+      required: true
+      schema:
+        type: string
+    scope:
+      name: scope
+      in: query
+      required: false
+      schema:
+        type: string
