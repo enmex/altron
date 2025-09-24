@@ -94,7 +94,7 @@ func (u *WorkspaceUseCase) listenToSessions(ctx context.Context, workspaceID uui
 		return err
 	}
 	_, err = req.PatchWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/api/workspaces/%s", u.cfg.AltronHost, u.cfg.AltronPort, workspaceID),
+		fmt.Sprintf("http://altron.core.loc:%d/api/workspaces/%s", u.cfg.AltronPort, workspaceID),
 		dto.UpdateWorkspaceStatusRequest{
 			Status: common.LISTENING,
 		})
@@ -103,14 +103,14 @@ func (u *WorkspaceUseCase) listenToSessions(ctx context.Context, workspaceID uui
 	}
 	closeChan := u.closeChans[workspaceID]
 	pluginsResponse, err := req.Get[dto.GetServicePluginsResponse](
-		fmt.Sprintf("http://%s:%d/api/services/%d", u.cfg.AltronHost, u.cfg.AltronPort, servicePort),
+		fmt.Sprintf("http://altron.core.loc:%d/api/services/%d", u.cfg.AltronPort, servicePort),
 	)
 	if err != nil {
 		return err
 	}
 
 	filtersResponse, err := req.Get[dto.GetAllFiltersResponse](
-		fmt.Sprintf("http://%s:%d/api/filters?servicePort=%d", u.cfg.AltronHost, u.cfg.AltronPort, servicePort),
+		fmt.Sprintf("http://altron.core.loc:%d/api/filters?servicePort=%d", u.cfg.AltronPort, servicePort),
 	)
 	if err != nil {
 		return err
@@ -125,7 +125,7 @@ func (u *WorkspaceUseCase) listenToSessions(ctx context.Context, workspaceID uui
 		select {
 		case <-ticker.C:
 			_, err := req.PatchWithEmptyResponse(
-				fmt.Sprintf("http://%s:%d/api/workspaces/%s", u.cfg.AltronHost, u.cfg.AltronPort, workspaceID),
+				fmt.Sprintf("http://altron.core.loc:%d/api/workspaces/%s", u.cfg.AltronPort, workspaceID),
 				dto.UpdateWorkspaceStatusRequest{
 					Status: common.COMPLETED,
 				})
@@ -160,8 +160,7 @@ func (u *WorkspaceUseCase) processMessage(ctx context.Context, body []byte, work
 		return err
 	}
 	statusCode, err := req.PostWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/api/workspaces/%s/sessions",
-			u.cfg.AltronHost,
+		fmt.Sprintf("http://altron.core.loc:%d/api/workspaces/%s/sessions",
 			u.cfg.AltronPort,
 			workspaceID,
 		), dto.AddSessionsToWorkspaceRequest{
@@ -187,8 +186,7 @@ func (u *WorkspaceUseCase) saveAnalyzerPayload(ctx context.Context, servicePort 
 	if err != nil {
 		return err
 	}
-	statusCode, err := req.PostWithEmptyResponse(fmt.Sprintf("http://%s:%d/api/session-analyzer/workspaces/%s",
-		u.cfg.AltronHost,
+	statusCode, err := req.PostWithEmptyResponse(fmt.Sprintf("http://altron.core.loc:%d/api/session-analyzer/workspaces/%s",
 		u.cfg.AltronPort,
 		workspaceID,
 	), dto.CreateAnalyzerPayloadRequest{

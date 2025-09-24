@@ -76,7 +76,7 @@ func (u *PcapWorkspaceUseCase) StartListeningPcap(pcapWorkspaceID uuid.UUID, req
 		case message := <-messageChan:
 			if string(message.Body) == "eof" {
 				statusCode, err := request.PatchWithEmptyResponse(
-					fmt.Sprintf("http://%s:%d/api/pcap-workspaces/%s", u.cfg.AltronHost, u.cfg.AltronPort, pcapWorkspaceID.String()),
+					fmt.Sprintf("http://altron.core.loc:%d/api/pcap-workspaces/%s", u.cfg.AltronPort, pcapWorkspaceID.String()),
 					dto.UpdatePcapWorkspaceStatusRequest{
 						Status: common.COMPLETED,
 					},
@@ -97,7 +97,7 @@ func (u *PcapWorkspaceUseCase) StartListeningPcap(pcapWorkspaceID uuid.UUID, req
 				return
 			}
 			statusCode, err := request.PostWithEmptyResponse(
-				fmt.Sprintf("http://%s:%d/api/pcap-workspaces/%s/sessions", u.cfg.AltronHost, u.cfg.AltronPort, pcapWorkspaceID.String()),
+				fmt.Sprintf("http://altron.core.loc:%d/api/pcap-workspaces/%s/sessions", u.cfg.AltronPort, pcapWorkspaceID.String()),
 				dto.AddPcapSessionRequest{
 					Session: &session,
 				},

@@ -27,7 +27,7 @@ func NewSessionHandler(log *logrus.Logger, cfg *config.AppConfig) *SessionHandle
 func (h *SessionHandler) ServeSession(session *common.Session, serviceFilters []*common.Filter, servicePlugins []string) (*common.Session, error) {
 	if len(servicePlugins) != 0 {
 		processSessionResponse, err := request.Post[dto.ProcessSessionResponse](
-			fmt.Sprintf("http://%s:%d/plugins/process", h.cfg.AltronHost, h.cfg.AltronPluginPort),
+			fmt.Sprintf("http://altron.plugin.loc:%d/plugins/process", h.cfg.AltronPluginPort),
 			dto.ProcessSessionRequest{
 				Session: session,
 				Plugins: servicePlugins,

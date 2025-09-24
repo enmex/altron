@@ -82,14 +82,14 @@ func (u *ConnectionUseCase) ListenSessions(ctx context.Context, ws *websocket.Co
 	analyzerPassList := make(map[string][]string, 0)
 
 	pluginsResponse, err := request.Get[dto.GetServicePluginsResponse](
-		fmt.Sprintf("http://%s:%d/api/services/%d", u.cfg.AltronHost, u.cfg.AltronPort, servicePort),
+		fmt.Sprintf("http://altron.core.loc:%d/api/services/%d", u.cfg.AltronPort, servicePort),
 	)
 	if err != nil {
 		return err
 	}
 
 	filtersResponse, err := request.Get[dto.GetAllFiltersResponse](
-		fmt.Sprintf("http://%s:%d/api/filters?servicePort=%d", u.cfg.AltronHost, u.cfg.AltronPort, servicePort),
+		fmt.Sprintf("http://altron.core.loc:%d/api/filters?servicePort=%d", u.cfg.AltronPort, servicePort),
 	)
 	if err != nil {
 		return err
@@ -132,14 +132,14 @@ func (u *ConnectionUseCase) ListenSessions(ctx context.Context, ws *websocket.Co
 			case "refresh":
 				u.log.Infof("%s refreshed session streaming in port %d", consumer.MemberID(), servicePort)
 				filtersResponse, err = request.Get[dto.GetAllFiltersResponse](
-					fmt.Sprintf("http://%s:%d/api/filters?servicePort=%d", u.cfg.AltronHost, u.cfg.AltronPort, servicePort),
+					fmt.Sprintf("http://altron.core.loc:%d/api/filters?servicePort=%d", u.cfg.AltronPort, servicePort),
 				)
 				if err != nil {
 					errChan <- err
 					return
 				}
 				pluginsResponse, err = request.Get[dto.GetServicePluginsResponse](
-					fmt.Sprintf("http://%s:%d/api/services/%d", u.cfg.AltronHost, u.cfg.AltronPort, servicePort),
+					fmt.Sprintf("http://altron.core.loc:%d/api/services/%d", u.cfg.AltronPort, servicePort),
 				)
 				if err != nil {
 					errChan <- err
@@ -421,7 +421,7 @@ func (u *ConnectionUseCase) OpenMainChannel(ctx context.Context, ws *websocket.C
 
 	//send services
 	res, err := request.Get[dto.GetAllServicesResponse](
-		fmt.Sprintf("http://%s:%d/api/dashboard", u.cfg.AltronHost, u.cfg.AltronPort),
+		fmt.Sprintf("http://altron.core.loc:%d/api/dashboard", u.cfg.AltronPort),
 	)
 	if err != nil {
 		return err
