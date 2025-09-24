@@ -97,7 +97,7 @@ func (u *ServiceUseCase) CreateService(ctx context.Context, userID uuid.UUID, re
 		return nil, err
 	}
 	if _, err := req.PostWithEmptyResponse(
-		fmt.Sprintf("http://altron.session.loc:%d/events", u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.connection.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		dto.CreateEventRequest{
 			Type:            models.CreateService,
 			Data:            data,
