@@ -49,7 +49,7 @@ func main() {
 
 	authCfg := config.NewAuthConfig()
 
-	userInfoUrl := fmt.Sprintf("http://%s:%d/api/users/info", appCfg.AltronHost, appCfg.AltronPort)
+	userInfoUrl := fmt.Sprintf("http://altron.core.loc:%d/api/users/info", appCfg.AltronPort)
 	userRes, err := request.Get[dto.GetUserInfoResponse](userInfoUrl)
 	if err != nil {
 		time.Sleep(10 * time.Second)
@@ -147,7 +147,7 @@ func main() {
 	}
 
 	// get ports
-	portsUrl := fmt.Sprintf("http://%s:%d/api/dashboard", appCfg.AltronHost, appCfg.AltronPort)
+	portsUrl := fmt.Sprintf("http://altron.core.loc:%d/api/dashboard", appCfg.AltronPort)
 	res, err := request.Get[dto.GetPortsResponse](portsUrl)
 	if err != nil {
 		time.Sleep(10 * time.Second)

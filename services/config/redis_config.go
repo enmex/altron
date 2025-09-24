@@ -18,7 +18,7 @@ func NewRedisConfig() (*redis.Config, error) {
 		return nil, err
 	}
 	cfg.Prefix = os.Getenv("HOSTNAME")
-	cfg.Host = os.Getenv("REDIS_MASTER_SERVICE_HOST")
+	cfg.Host = "altron.redis.loc" //os.Getenv("REDIS_MASTER_SERVICE_HOST")
 
 	return &cfg, nil
 }

@@ -3,10 +3,6 @@ FROM golang:1.21.4-alpine
 WORKDIR /
 
 RUN apk add build-base python3-dev py3-pip git squashfs-tools
-RUN git clone https://github.com/ReFirmLabs/binwalk.git && \
-    cd binwalk && \
-    python3 setup.py install && \
-    cd /
 
 COPY ./config.yaml .
 COPY ./services/cmd/core/ ./cmd/core/

@@ -17,8 +17,8 @@ func NewAMQPConfig() (*amqp.Config, error) {
 	if err = yaml.Unmarshal(yamlFile, &cfg); err != nil {
 		return nil, err
 	}
-	cfg.Prefix = os.Getenv("HOSTNAME")
-	cfg.Host = os.Getenv("RABBITMQ_SERVICE_HOST")
+	cfg.Prefix = "altron" //os.Getenv("HOSTNAME")
+	cfg.Host = "altron.rabbitmq.loc" //os.Getenv("RABBITMQ_SERVICE_HOST")
 
 	return &cfg, nil
 }

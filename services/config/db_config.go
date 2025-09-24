@@ -17,6 +17,6 @@ func NewDBConfig() (*db.Config, error) {
 	if err := yaml.Unmarshal(yamlFile, &cfg); err != nil {
 		return nil, err
 	}
-	cfg.Host = os.Getenv("POSTGRESQL_SERVICE_HOST")
+	cfg.Host = "altron.db.loc" //os.Getenv("POSTGRESQL_SERVICE_HOST")
 	return &cfg, nil
 }

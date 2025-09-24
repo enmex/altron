@@ -74,12 +74,12 @@ func main() {
 
 	// reset all workspaces
 	if _, err := request.PostWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/api/workspaces/reset", appCfg.AltronHost, appCfg.AltronPort),
+		fmt.Sprintf("http://altron.core.loc:%d/api/workspaces/reset", appCfg.AltronPort),
 		nil,
 	); err != nil {
 		time.Sleep(10 * time.Second)
 		if _, err := request.PostWithEmptyResponse(
-			fmt.Sprintf("http://%s:%d/api/workspaces/reset", appCfg.AltronHost, appCfg.AltronPort),
+			fmt.Sprintf("http://altron.core.loc:%d/api/workspaces/reset", appCfg.AltronPort),
 			nil,
 		); err != nil {
 			log.Fatalln(err)

@@ -185,7 +185,7 @@ func (u *ServiceUseCase) UpdateService(ctx context.Context, userID uuid.UUID, se
 		return err
 	}
 	res, err := req.Post[dto.CreateEventResponse](
-		fmt.Sprintf("http://%s:%d/events", u.cfg.App.AltronHost, u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.connection.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		dto.CreateEventRequest{
 			Type:            models.UpdateService,
 			Data:            data,
@@ -272,7 +272,7 @@ func (u *ServiceUseCase) ScanHost(ctx context.Context, scope string) (*spec.Scan
 	}
 
 	res, err := req.Post[dto.CreateEventResponse](
-		fmt.Sprintf("http://%s:%d/events", u.cfg.App.AltronHost, u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.connection.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		dto.CreateEventRequest{
 			Type:            eventType,
 			WaitForResponse: true,
@@ -300,7 +300,7 @@ func (u *ServiceUseCase) ScanService(ctx context.Context, port uint16) (*spec.Sc
 		return nil, err
 	}
 	res, err := req.Post[dto.CreateEventResponse](
-		fmt.Sprintf("http://%s:%d/events", u.cfg.App.AltronHost, u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.connection.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		dto.CreateEventRequest{
 			Type:            models.ScanPort,
 			Data:            data,

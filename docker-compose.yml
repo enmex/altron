@@ -8,13 +8,17 @@ services:
     container_name: frontend
     depends_on:
       - core
-    ports:
-      - "31000:31000"
     build:
       context: ./frontend
       dockerfile: Dockerfile
     env_file:
       - .env
+    ports:
+      - 80:80
+    networks:
+      altron_network:
+        aliases:
+          - altron.frontend.loc
 
   db:
     container_name: db
@@ -24,8 +28,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: pass
       PGPORT: 5432
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d altron_db']
       interval: 10s
@@ -34,6 +36,11 @@ services:
       start_period: 10s
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.10
+        aliases:
+          - altron.db.loc
 
   rabbitmq:
     container_name: rabbitmq
@@ -41,22 +48,28 @@ services:
       context: ./
       dockerfile: ./docker/rabbitmq.dockerfile
     image: rabbitmq:docker
-    ports:
-      - "5672:5672"
     environment:
       - RABBITMQ_DEFAULT_USER=${AMQP_USER:-user}
       - RABBITMQ_DEFAULT_PASS=${AMQP_PASS:-pass}
     env_file:
       - .env
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.11
+        aliases:
+          - altron.rabbitmq.loc
 
   redis:
     container_name: redis
     image: redis
     command: redis-server --port 6379 --save 20 1 --loglevel warning --requirepass pass
-    ports:
-      - "6379:6379"
     volumes: 
       - redis_data:/data
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.12
+        aliases:
+          - altron.redis.loc
 
   core:
     container_name: core
@@ -73,10 +86,13 @@ services:
     build:
       context: .
       dockerfile: ./docker/core.dockerfile
-    ports:
-      - "64001:64001"  
     env_file:
       - .env
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.13
+        aliases:
+          - altron.core.loc
 
   plugin:
     container_name: plugin
@@ -84,16 +100,20 @@ services:
     build: 
       context: .
       dockerfile: ./docker/plugin.dockerfile
-    ports:
-      - "64003:64003"  
     env_file:
       - .env
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.14
+        aliases:
+          - altron.plugin.loc
 
   session:
     container_name: session
     depends_on:
       - rabbitmq
       - redis
+      - sftp
     restart: always
     build:
       context: .
@@ -103,7 +123,14 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
+    ports:
+      - 64005:64005
     network_mode: host
+    extra_hosts:
+      - "altron.core.loc:172.28.0.13"
+      - "altron.rabbitmq.loc:172.28.0.11"
+      - "altron.redis.loc:172.28.0.12"
+      - "altron.sftp.loc:172.28.0.15"
 
   converter:
     container_name: converter
@@ -111,15 +138,23 @@ services:
     build:
       context: .
       dockerfile: ./docker/converter.dockerfile
-    ports:
-      - "64004:64004"  
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.16
+        aliases:
+          - altron.converter.loc
 
   sftp:
     container_name: sftp
     image: drakkan/sftpgo:latest
     ports:
-      - 2022:2022
       - 8080:8080
+      - 2022:2022
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.15
+        aliases:
+          - altron.sftp.loc
 
   connection:
     container_name: connection
@@ -130,7 +165,16 @@ services:
     build:
       context: .
       dockerfile: ./docker/connection.dockerfile
-    ports:
-      - "64005:64005"  
     env_file:
       - .env
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.17
+        aliases:
+          - altron.connection.loc
+
+networks:
+  altron_network:
+    ipam:
+      config:
+        - subnet: "172.28.0.0/16"

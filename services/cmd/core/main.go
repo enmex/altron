@@ -153,11 +153,11 @@ func main() {
 	}
 
 	//load plugins
-	res, err := request.Get[spec.GetAllPluginsResponse](fmt.Sprintf("http://%s:%d/plugins", cfg.App.AltronHost, cfg.App.AltronPluginPort))
+	res, err := request.Get[spec.GetAllPluginsResponse](fmt.Sprintf("http://altron.plugin.loc:%d/plugins", cfg.App.AltronPluginPort))
 	if err != nil {
 		log.Warnln("unable to load plugins, retrying in 10s...")
 		time.Sleep(10 * time.Second)
-		res, err = request.Get[spec.GetAllPluginsResponse](fmt.Sprintf("http://%s:%d/plugins", cfg.App.AltronHost, cfg.App.AltronPluginPort))
+		res, err = request.Get[spec.GetAllPluginsResponse](fmt.Sprintf("http://altron.plugin.loc:%d/plugins", cfg.App.AltronPluginPort))
 		if err != nil {
 			log.Fatalln(err)
 		}
