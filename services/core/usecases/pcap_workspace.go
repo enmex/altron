@@ -72,7 +72,7 @@ func (u *PcapWorkspaceUseCase) CreatePcapWorkspace(ctx context.Context, userID u
 		return nil, err
 	}
 	if err := request.Put(
-		fmt.Sprintf("http://%s:%d/workspaces/pcaps/%s", u.cfg.AltronHost, u.cfg.AltronConnectionPort, pcapWorkspaceEnt.ID),
+		fmt.Sprintf("http://altron.connection.loc:%d/workspaces/pcaps/%s", u.cfg.AltronConnectionPort, pcapWorkspaceEnt.ID),
 		dto.StartPcapListeningRequest{
 			FileName: fileHeader.Filename,
 		},
@@ -80,7 +80,7 @@ func (u *PcapWorkspaceUseCase) CreatePcapWorkspace(ctx context.Context, userID u
 		return nil, err
 	}
 	statusCode, err := request.PostWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/pcaps", u.cfg.AltronHost, u.cfg.AltronSessionPort),
+		fmt.Sprintf("http://altron.session.loc:%d/pcaps", u.cfg.AltronSessionPort),
 		dto.UploadPcapRequest{
 			FileName: fileHeader.Filename,
 		},
@@ -107,7 +107,7 @@ func (u *PcapWorkspaceUseCase) CreateLargePcapWorkspace(ctx context.Context, use
 		return err
 	}
 	if err := request.Put(
-		fmt.Sprintf("http://%s:%d/workspaces/pcaps/%s", u.cfg.AltronHost, u.cfg.AltronConnectionPort, pcapWorkspaceEnt.ID),
+		fmt.Sprintf("http://altron.connection.loc:%d/workspaces/pcaps/%s", u.cfg.AltronConnectionPort, pcapWorkspaceEnt.ID),
 		dto.StartPcapListeningRequest{
 			FileName: filename,
 		},
@@ -115,7 +115,7 @@ func (u *PcapWorkspaceUseCase) CreateLargePcapWorkspace(ctx context.Context, use
 		return err
 	}
 	statusCode, err := request.PostWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/pcaps", u.cfg.AltronHost, u.cfg.AltronSessionPort),
+		fmt.Sprintf("http://altron.session.loc:%d/pcaps",u.cfg.AltronSessionPort),
 		dto.UploadPcapRequest{
 			FileName: filename,
 		},

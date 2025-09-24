@@ -62,8 +62,7 @@ func (u *WorkspaceUseCase) CreateWorkspace(ctx context.Context, userID uuid.UUID
 		}
 	}
 	if err := req.Put(
-		fmt.Sprintf("http://%s:%d/workspaces/%s/sessions/%d",
-			u.cfg.AltronHost,
+		fmt.Sprintf("http://altron.connection.loc:%d/workspaces/%s/sessions/%d",
 			u.cfg.AltronConnectionPort,
 			workspaceEnt.ID,
 			request.ServicePort),
@@ -98,7 +97,7 @@ func (u *WorkspaceUseCase) DeleteWorkspace(ctx context.Context, userID uuid.UUID
 	}
 	if !strings.EqualFold(string(workspaceEnt.Status), "COMPLETED") {
 		_, err := req.DeleteWithEmptyResponse(
-			fmt.Sprintf("http://%s:%d/workspaces/%s/sessions", u.cfg.AltronHost, u.cfg.AltronConnectionPort, workspaceID),
+			fmt.Sprintf("http://altron.connection.loc:%d/workspaces/%s/sessions", u.cfg.AltronConnectionPort, workspaceID),
 		)
 		return err
 	}

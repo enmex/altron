@@ -61,7 +61,7 @@ func (u *ServiceUseCase) CreateService(ctx context.Context, userID uuid.UUID, re
 	}
 
 	statusCode, err := req.PostWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/ports", u.cfg.App.AltronHost, u.cfg.App.AltronSessionPort),
+		fmt.Sprintf("http://altron.session.loc:%d/ports", u.cfg.App.AltronSessionPort),
 		dto.CreatePortsRequest{
 			Ports: []dto.PortRequest{{
 				Port:        service.Port,
@@ -97,7 +97,7 @@ func (u *ServiceUseCase) CreateService(ctx context.Context, userID uuid.UUID, re
 		return nil, err
 	}
 	if _, err := req.PostWithEmptyResponse(
-		fmt.Sprintf("http://%s:%d/events", u.cfg.App.AltronHost, u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.session.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		dto.CreateEventRequest{
 			Type:            models.CreateService,
 			Data:            data,
@@ -170,7 +170,7 @@ func (u *ServiceUseCase) UpdateService(ctx context.Context, userID uuid.UUID, se
 	if request.ContainerID == nil {
 		return nil
 	}
-	_, err = req.PatchWithEmptyResponse(fmt.Sprintf("http://%s:%d/logs", u.cfg.App.AltronHost, u.cfg.App.AltronSessionPort), dto.UpdateContainerRequest{
+	_, err = req.PatchWithEmptyResponse(fmt.Sprintf("http://altron.session.loc:%d/logs", u.cfg.App.AltronSessionPort), dto.UpdateContainerRequest{
 		OldContainer: serviceEnt.ContainerID,
 		NewContainer: *request.ContainerID,
 	})
@@ -214,7 +214,7 @@ func (u *ServiceUseCase) DeleteService(ctx context.Context, userID uuid.UUID, se
 		return err
 	}
 
-	statusCode, err := req.DeleteWithRequest(fmt.Sprintf("http://%s:%d/ports", u.cfg.App.AltronHost, u.cfg.App.AltronSessionPort), dto.DeletePortRequest{
+	statusCode, err := req.DeleteWithRequest(fmt.Sprintf("http://altron.session.loc:%d/ports", u.cfg.App.AltronSessionPort), dto.DeletePortRequest{
 		PortRequest: dto.PortRequest{
 			Port:        uint16(service.Port),
 			ContainerID: service.ContainerID,
@@ -243,7 +243,7 @@ func (u *ServiceUseCase) DeleteService(ctx context.Context, userID uuid.UUID, se
 		return err
 	}
 	res, err := req.Post[dto.CreateEventResponse](
-		fmt.Sprintf("http://%s:%d/events", u.cfg.App.AltronHost, u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.connection.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		dto.CreateEventRequest{
 			Type:            models.DeleteService,
 			Data:            data,

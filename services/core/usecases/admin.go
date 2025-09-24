@@ -117,7 +117,7 @@ func (u *AdminUseCase) ResetAll(ctx context.Context) (*spec.ReconfigureAltronRes
 		return nil, err
 	}
 	if _, err := http.Post(
-		fmt.Sprintf("http://%s:%d/events", u.cfg.App.AltronHost, u.cfg.App.AltronConnectionPort),
+		fmt.Sprintf("http://altron.connection.loc:%d/events", u.cfg.App.AltronConnectionPort),
 		"application/json",
 		bytes.NewBuffer(data),
 	); err != nil {

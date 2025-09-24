@@ -125,12 +125,16 @@ services:
       - .env
     ports:
       - 64005:64005
-    network_mode: host
-    extra_hosts:
-      - "altron.core.loc:172.28.0.13"
-      - "altron.rabbitmq.loc:172.28.0.11"
-      - "altron.redis.loc:172.28.0.12"
-      - "altron.sftp.loc:172.28.0.15"
+    networks:
+      altron_network:
+        ipv4_address: 172.28.0.18
+        aliases:
+          - altron.session.loc
+    # extra_hosts:
+    #   - "altron.core.loc:172.28.0.13"
+    #   - "altron.rabbitmq.loc:172.28.0.11"
+    #   - "altron.redis.loc:172.28.0.12"
+    #   - "altron.sftp.loc:172.28.0.15"
 
   converter:
     container_name: converter
