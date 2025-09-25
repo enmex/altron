@@ -217,7 +217,7 @@ func (h *AnalyzerHandler) getServiceCheckerMask(ctx context.Context, servicePort
 
 	if !ok {
 		checkerMaskResponse, err := request.Get[commonDto.GetServiceCheckerMaskResponse](
-			fmt.Sprintf("http://%s:%d/api/session-analyzer/services/%d/checker", h.cfg.AltronHost, h.cfg.AltronPort, servicePort),
+			fmt.Sprintf("http://altron.core.loc:%d/api/session-analyzer/services/%d/checker", h.cfg.AltronPort, servicePort),
 		)
 		if err != nil {
 			return nil, err
