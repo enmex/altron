@@ -83,7 +83,7 @@ export const WorkspaceCreationPanel = (props:{
             props.onClose();
             dispatch(putWorkspace(data));
             dispatch(setWorkspace(data));
-            navigate(`/workspaces/${data.name}`);
+            navigate(`/workspaces/${data.id}`);
         })
         .catch((err) => {
             dispatch(putError(err.data.message));
