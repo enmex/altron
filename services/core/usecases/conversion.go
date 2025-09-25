@@ -58,7 +58,7 @@ func (u *ConversionUseCase) ConvertSessionToExploit(ctx context.Context, request
 	}
 
 	res, err := req.Post[dto.ConvertToExploitResponse](
-		fmt.Sprintf("http://%s:%d/convert_to_requests_sploit", u.cfg.AltronHost, u.cfg.AltronConverterPort),
+		fmt.Sprintf("http://altron.converter.loc:%d/convert_to_requests_sploit", u.cfg.AltronConverterPort),
 		dto.ConvertSessionToExploitRequest{
 			Base64Strings: payloads,
 		},
@@ -90,7 +90,7 @@ func (u *ConversionUseCase) ConvertPacketToExploit(ctx context.Context, request 
 	}
 
 	res, err := req.Post[dto.ConvertToExploitResponse](
-		fmt.Sprintf("http://%s:%d/%s", u.cfg.AltronHost, u.cfg.AltronConverterPort, path),
+		fmt.Sprintf("http://altron.converter.loc:%d/%s", u.cfg.AltronConverterPort, path),
 		dto.ConvertPacketToExploitRequest{
 			Base64Str: request.Packet.Payload,
 		},
