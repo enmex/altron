@@ -75,7 +75,6 @@ services:
     container_name: core
     depends_on:
       - db
-      - sftp
       - rabbitmq
       - redis
       - plugin
@@ -123,8 +122,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
-    ports:
-      - 64005:64005
     networks:
       altron_network:
         ipv4_address: 172.28.0.18

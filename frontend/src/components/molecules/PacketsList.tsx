@@ -74,8 +74,15 @@ export const PacketsList = (props: {
         })
     }
 
-    useEffect(() => {        
-        next();
+    useEffect(() => {
+        fetchNext(0, 10).then(newData => {
+            setListData(newData);
+        });
+        pageRef.current = 1;
+        setCurrentFilterPacket({
+            filterId: "",
+            matchedPacketIdx: 0
+        })
         const scroll = listRef.current;
         if (!scroll) {
             return;
@@ -97,15 +104,10 @@ export const PacketsList = (props: {
         scroll.addEventListener('scroll', handleScroll);
 
         return () => {
-            pageRef.current = 0;
-            setCurrentFilterPacket({
-                filterId: "",
-                matchedPacketIdx: 0
-            })
             scroll.removeEventListener('scroll', handleScroll);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.session]);
+    }, [props.session.id]);
 
     return (
         <div className="flex flex-col">
