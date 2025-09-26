@@ -26,4 +26,5 @@ var (
 	ErrorOnlyPcapSupported               = errors.New("only pcap files are supported")
 	ErrorInvalidFilename                 = errors.New("invalid file name")
 	ErrorPcapWorkspaceNotFound           = errors.New("pcap workspace not found")
+	ErrorNoExtractedFiles                = errors.New("no files found in packet payload")
 )

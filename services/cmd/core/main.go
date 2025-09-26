@@ -185,7 +185,7 @@ func main() {
 		serviceUseCase,
 		usecases.NewWorkspaceUseCase(cfg.App, redisClient, repo.Workspace, repo.Session),
 		usecases.NewSessionUseCase(log, repo.Session, repo.Cart, analyzerHandler),
-		usecases.NewConversionUseCase(cfg.App, sftpClient),
+		usecases.NewConversionUseCase(log, cfg.App, sftpClient),
 		pluginUseCase,
 		usecases.NewFilterUseCase(log, repo.Filter, repo.Session),
 		usecases.NewSessionAnalyzerUseCase(repo.AnalyzerPayload, repo.Workspace, redisClient),

@@ -5,6 +5,7 @@ import (
 	"altron/core/dto"
 	"altron/core/generated/spec"
 	"altron/core/interfaces"
+	"altron/core/models"
 	req "altron/pkg/request"
 	"altron/pkg/sftp"
 	"altron/utils"
@@ -19,6 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"github.com/sirupsen/logrus"
 )
 
 var _ interfaces.ConversionUseCase = (*ConversionUseCase)(nil)
@@ -30,12 +33,14 @@ type ExploitTemplatePayload struct {
 }
 
 type ConversionUseCase struct {
+	log *logrus.Logger
 	cfg        *config.AppConfig
 	sftpClient *sftp.Client
 }
 
-func NewConversionUseCase(cfg *config.AppConfig, sftpClient *sftp.Client) *ConversionUseCase {
+func NewConversionUseCase(log *logrus.Logger, cfg *config.AppConfig, sftpClient *sftp.Client) *ConversionUseCase {
 	return &ConversionUseCase{
+		log:        log,
 		cfg:        cfg,
 		sftpClient: sftpClient,
 	}
@@ -235,6 +240,8 @@ func (u *ConversionUseCase) ExtractFiles(ctx context.Context, request *spec.Extr
 			return nil, err
 		}
 
+		u.log.Infof("Extracting files from packet %s_%d", request.SessionID, request.PacketNumber)
+
 		binFilename := fmt.Sprintf("%s_%d", request.SessionID, request.PacketNumber)
 		bin, err := os.Create(binFilename)
 		if err != nil {
@@ -247,20 +254,36 @@ func (u *ConversionUseCase) ExtractFiles(ctx context.Context, request *spec.Extr
 
 		cmd := exec.Command("binwalk", "-D", ".", "-C", "/", binFilename, "--run-as=root")
 
-		if _, err := cmd.CombinedOutput(); err != nil {
+		u.log.Infoln("binwalk", "-D", ".", "-C", "/", binFilename, "--run-as=root")
+
+		if err := cmd.Run(); err != nil {
 			return nil, err
 		}
+
+		u.log.Infof("Extracted files from packet %s_%d", request.SessionID, request.PacketNumber)
+
 		if err := os.Remove(binFilename); err != nil {
 			return nil, err
 		}
 		extractedDir := "_" + binFilename + ".extracted"
 
+		if _, err := os.Stat(extractedDir); os.IsNotExist(err) {
+			return nil, models.ErrorNoExtractedFiles
+		}	
+
+		u.log.Infof("Zipping extracted files from packet %s_%d", request.SessionID, request.PacketNumber)
+
 		if err := u.zipDirectory(extractedDir, zipFilename); err != nil {
 			return nil, err
 		}
+
+		u.log.Infof("Zipped extracted files from packet %s_%d", request.SessionID, request.PacketNumber)
+
 		if err := os.RemoveAll(extractedDir); err != nil {
 			return nil, err
 		}
+
+		u.log.Infof("Uploading zipped extracted files from packet %s_%d", request.SessionID, request.PacketNumber)
 
 		if err := u.sftpClient.Upload(zipFilename); err != nil {
 			return nil, err
@@ -281,6 +304,7 @@ func (u *ConversionUseCase) ExtractFiles(ctx context.Context, request *spec.Extr
 func (u *ConversionUseCase) zipDirectory(dir, targetPath string) error {
 	zipFile, err := os.Create(targetPath)
 	if err != nil {
+		u.log.Errorf("Error creating zip file %s: %v", targetPath, err)
 		return err
 	}
 	defer zipFile.Close()
@@ -290,16 +314,19 @@ func (u *ConversionUseCase) zipDirectory(dir, targetPath string) error {
 
 	return filepath.Walk(dir, func(filePath string, info os.FileInfo, err error) error {
 		if err != nil {
+			u.log.Errorf("Error walking directory %s: %v", dir, err)
 			return err
 		}
 
 		relPath, err := filepath.Rel(dir, filePath)
 		if err != nil {
+			u.log.Errorf("Error getting relative path %s: %v", filePath, err)
 			return err
 		}
 
 		fileInZip, err := zipWriter.Create(relPath)
 		if err != nil {
+			u.log.Errorf("Error creating file in zip %s: %v", relPath, err)
 			return err
 		}
 
@@ -309,12 +336,14 @@ func (u *ConversionUseCase) zipDirectory(dir, targetPath string) error {
 
 		file, err := os.Open(filePath)
 		if err != nil {
+			u.log.Errorf("Error opening file %s: %v", filePath, err)
 			return err
 		}
 		defer file.Close()
 
 		_, err = io.Copy(fileInZip, file)
 		if err != nil {
+			u.log.Errorf("Error copying file to zip %s: %v", filePath, err)
 			return err
 		}
 
