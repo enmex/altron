@@ -1,7 +1,7 @@
 import { getDashboard } from "../../app/store/dashboard/dashboard.api";
 import { useAppDispatch, useAppSelector } from "../../app/store/hooks";
 import { Service } from "../../app/types/Service";
-import { unsetService } from "../../app/store/service/service.slice";
+import { setService, unsetService } from "../../app/store/service/service.slice";
 import { useEffect, useState } from "react";
 import { Button } from "../atoms/Button";
 import { Select } from "../molecules/Select";
@@ -22,6 +22,7 @@ import { DropdownButton } from "../molecules/DropdownButton";
 import { unsetPcapWorkspace } from "../../app/store/pcap/pcap.slice";
 import { putError } from "../../app/store/error/error.slice";
 import { ImportJsonPanel } from "../molecules/ImportJsonPanel";
+import { getService } from "../../app/store/service/service.api";
 
 export const Header = () => {
     const theme = useAppSelector(state => state.rootReducer.theme);
@@ -32,6 +33,7 @@ export const Header = () => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
     const navigate = useAppNavigation();
+    const [getServiceTrigger] = getService.useLazyQuery();
     const [serviceCreationPanelActive, setServiceCreationPanelActive] = useState(false);
     const [pcapWorkspaces, setPcapWorkspaces] = useState<PcapWorkspace[]>([]);
     const [importPcapPanelActive, setImportPcapPanelActive] = useState(false);
@@ -45,7 +47,12 @@ export const Header = () => {
         dispatch(unsetWorkspace());
         dispatch(unsetPcapWorkspace());
         refetchDashboard();
-        navigate("/services/" + service.port);
+        getServiceTrigger(service.port).unwrap().then((res) => {
+            dispatch(setService(res));
+            navigate("/services/" + service.port);
+        }).catch((err) => {
+            dispatch(putError(err.data.message));
+        });
     }
 
     const refetchDashboard = () => {
